@@ -5,14 +5,14 @@ serverName = 'master2'
 serverPort = 12000
 clientSocket = socket(AF_INET, SOCK_DGRAM)
 t_out = 3.59710304346
+min_rtt = 1
+max_rtt = 0
 
 # ping and wait for response or timeout
 for i in range(10):
     message = 'Ping' + str(i+1)
     clientSocket.sendto(message.encode(), (serverName, serverPort))
     time_sent = time.time()  # store the time message was sent
-    min_rtt = 1
-    max_rtt = 0
     try:
         clientSocket.settimeout(t_out)
         modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
@@ -36,8 +36,8 @@ for i in range(10):
 # put some RTT math HERE
 
 
-# print('\nMin RTT:         {} ms'.format())
-# print('Max RTT:         {} ms'.format())
+print('\nMin RTT:         {} ms'.format(min_rtt))
+print('Max RTT:         {} ms'.format(max_rtt))
 # print('Avg RTT:         {} ms'.format())
 # print('Packet Loss:     {} ms'.format())
 # print('Estimated RTT:   {} ms'.format())
