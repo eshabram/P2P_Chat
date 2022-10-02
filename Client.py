@@ -7,6 +7,9 @@ clientSocket = socket(AF_INET, SOCK_DGRAM)
 t_out = 3.59710304346
 min_rtt = 1
 max_rtt = 0
+avg_rtt = 0
+count_rtt = 0
+packet_loss = 0
 
 # ping and wait for response or timeout
 for i in range(10):
@@ -22,6 +25,8 @@ for i in range(10):
         print("\nMesg sent: " + message)
         print("Mesg rcvd: " + modifiedMessage.decode())
         print("PONG {} RTT: {}ms".format(str(i+1), rttString[:13]))
+        avg_rtt += rtt
+        count_rtt += 1
         if rtt < min_rtt:
             min_rtt = rtt
         elif rtt > max_rtt:
@@ -31,15 +36,17 @@ for i in range(10):
         print("\nMesg sent: " + message)
         print("No Mesg rcvd")
         print("PONG " + str(i+1) + " Request Timed out")
+        packet_loss += 1
         continue
 
 # put some RTT math HERE
+avg_rtt /= count_rtt
 
 
 print('\nMin RTT:         {} ms'.format(min_rtt))
 print('Max RTT:         {} ms'.format(max_rtt))
-# print('Avg RTT:         {} ms'.format())
-# print('Packet Loss:     {} ms'.format())
+print('Avg RTT:         {} ms'.format(avg_rtt))
+print('Packet Loss:     {} ms'.format(packet_loss))
 # print('Estimated RTT:   {} ms'.format())
 # print('Dev RTT:         {}'.format())
 print('Timeout Interval:{}'.format(t_out))
