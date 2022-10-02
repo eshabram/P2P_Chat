@@ -11,14 +11,22 @@ for i in range(10):
     message = 'Ping' + str(i+1)
     clientSocket.sendto(message.encode(), (serverName, serverPort))
     time_sent = time.time()  # store the time message was sent
+    min_rtt = 1
+    max_rtt = 0
     try:
         clientSocket.settimeout(t_out)
         modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
         time_recv = time.time()  # store time for message received
-        rtt = str(time_recv - time_sent)
+        rtt = time_recv - time_sent
+        rttString = str(rtt)
         print("\nMesg sent: " + message)
         print("Mesg rcvd: " + modifiedMessage.decode())
-        print("PONG {} RTT: {}ms".format(str(i+1), rtt[:13]))
+        print("PONG {} RTT: {}ms".format(str(i+1), rttString[:13]))
+        if rtt < min_rtt:
+            min_rtt = rtt
+        elif rtt > max_rtt:
+            max_rtt = rtt
+
     except TimeoutError as e:
         print("\nMesg sent: " + message)
         print("No Mesg rcvd")
@@ -26,6 +34,7 @@ for i in range(10):
         continue
 
 # put some RTT math HERE
+
 
 # print('\nMin RTT:         {} ms'.format())
 # print('Max RTT:         {} ms'.format())
