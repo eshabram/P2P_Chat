@@ -4,7 +4,7 @@ import time
 serverName = 'master2'
 serverPort = 12000
 clientSocket = socket(AF_INET, SOCK_DGRAM)
-t_out = 1.0
+timeout = 1.0
 min_rtt = 1
 max_rtt = 0
 avg_rtt = 0
@@ -22,7 +22,7 @@ for i in range(10):
     clientSocket.sendto(message.encode(), (serverName, serverPort))
     time_sent = time.time()  # store the time message was sent
     try:
-        clientSocket.settimeout(t_out)
+        clientSocket.settimeout(timeout)
         modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
         time_recv = time.time()  # store time for message received
         sample_rtt = (time_recv - time_sent) * 1000
@@ -36,15 +36,12 @@ for i in range(10):
             estimated_rtt = (1 - a) * estimated_rtt + a * sample_rtt
 
         # calc for deviation Rtt
-        if count_rtt < 1:
-            dev_rtt = sample_rtt/2
-        else:
-            dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
+        dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
 
         print("Ping {}: sample_rtt = {:.3f} ms, estimated_rtt = {:.3f} ms, dev_rtt = {:.3f} ms".format(
               i, sample_rtt, estimated_rtt, dev_rtt))
         count_rtt += 1
-
+        timeout = estimated_rtt + 4 * dev_rtt
         # check for min and max value
         if sample_rtt < min_rtt:
             min_rtt = sample_rtt
@@ -59,8 +56,6 @@ for i in range(10):
 
 avg_rtt /= count_rtt
 packet_loss = packet_loss / 10 * 100
-
-timeout = estimated_rtt + 4 * dev_rtt
 
 print("Summary values:")
 print('min_rtt: = {:.3f} ms'.format(min_rtt))
