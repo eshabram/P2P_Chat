@@ -14,6 +14,7 @@ a = .125
 b = .25
 estimated_rtt = 0
 dev_rtt = 0
+
 # ping and wait for response or timeout
 for i in range(10):
     message = 'Ping' + str(i + 1)
@@ -32,7 +33,7 @@ for i in range(10):
         count_rtt += 1
 
         # calculation for EstimatedRTT
-        estimated_rtt += (1 - a) * estimated_rtt + a * rtt
+        estimated_rtt = (1 - a) * estimated_rtt + a * rtt
 
         # calc for deviation Rtt
         dev_rtt = (1 - b) * dev_rtt + b * abs(rtt - estimated_rtt)
