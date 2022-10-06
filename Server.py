@@ -16,7 +16,7 @@ while True:
     # Receive the client packet along with the address it is coming from
     message, address = serverSocket.recvfrom(1024)
     # If rand is less is than 4, we consider the packet lost and do not respond
-    modifiedMessage = message.decode().upper();
+    modifiedMessage = message.decode().upper()
     if rand < 4:
         continue
     print('\nPING {} Received'.format(i))
