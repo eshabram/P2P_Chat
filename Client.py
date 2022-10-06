@@ -12,9 +12,9 @@ count_rtt = 0
 packet_loss = 0.0
 a = .125
 b = .25
-sample_rtt = 0
-estimated_rtt = 0
-dev_rtt = 0
+sample_rtt = 0.0
+estimated_rtt = 0.0
+dev_rtt = 0.0
 
 # ping and wait for response or timeout
 for i in range(10):
@@ -27,11 +27,7 @@ for i in range(10):
         time_recv = time.time()  # store time for message received
         sample_rtt = (time_recv - time_sent) * 1000
         rttString = str(sample_rtt)
-        print("\nMesg sent: " + message)
-        print("Mesg rcvd: " + modifiedMessage.decode())
-        print("PONG {} RTT: {}ms".format(str(i + 1), rttString))
         avg_rtt += sample_rtt
-        count_rtt += 1
 
         # calculation for EstimatedRTT
         if count_rtt < 1:
@@ -40,7 +36,14 @@ for i in range(10):
             estimated_rtt = (1 - a) * estimated_rtt + a * sample_rtt
 
         # calc for deviation Rtt
-        dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
+        if count_rtt < 1:
+            dev_rtt = sample_rtt/2
+        else:
+            dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
+
+        print("Ping {}: sample_rtt = {:.3f} ms, estimated_rtt = {:.3f} ms, dev_rtt = {:.3f} ms".format(
+              i, sample_rtt, estimated_rtt, dev_rtt))
+        count_rtt += 1
 
         # check for min and max value
         if sample_rtt < min_rtt:
@@ -48,26 +51,21 @@ for i in range(10):
         elif sample_rtt > max_rtt:
             max_rtt = sample_rtt
 
+    # catch timeout and record that a packet was lost
     except TimeoutError as e:
-        print("\nMesg sent: " + message)
-        print("No Mesg rcvd")
-        print("PONG " + str(i + 1) + " Request Timed out")
+        print("Ping " + str(i + 1) + ": Request Timed out")
         packet_loss += 1.0
         continue
 
-# put some RTT math HERE
 avg_rtt /= count_rtt
-a = 0.125
-b = 0.25
 packet_loss = packet_loss / 10 * 100
 
 timeout = estimated_rtt + 4 * dev_rtt
 
-print('\nMin RTT:         {} ms'.format(min_rtt))
-print('Max RTT:         {} ms'.format(max_rtt))
-print('Avg RTT:         {} ms'.format(avg_rtt))
-print('Packet Loss:     {} '.format(packet_loss))
-print('Estimated RTT:   {} ms'.format(estimated_rtt))
-print('Dev RTT:         {}'.format(dev_rtt))
-print('Timeout Interval:{}'.format(timeout))
+print("Summary values:")
+print('min_rtt: = {:.3f} ms'.format(min_rtt))
+print('max_rtt: = {:.3f} ms'.format(max_rtt))
+print('avg_rtt: = {:.3f} ms'.format(avg_rtt))
+print('Packet Loss: = {:.2f}% '.format(packet_loss))
+print('Timeout Interval: {:.3f} ms'.format(timeout))
 clientSocket.close()
