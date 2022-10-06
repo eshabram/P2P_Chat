@@ -12,6 +12,7 @@ count_rtt = 0
 packet_loss = 0.0
 a = .125
 b = .25
+sample_rtt = 0
 estimated_rtt = 0
 dev_rtt = 0
 
@@ -24,25 +25,28 @@ for i in range(10):
         clientSocket.settimeout(t_out)
         modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
         time_recv = time.time()  # store time for message received
-        rtt = (time_recv - time_sent) * 1000
-        rttString = str(rtt)
+        sample_rtt = (time_recv - time_sent) * 1000
+        rttString = str(sample_rtt)
         print("\nMesg sent: " + message)
         print("Mesg rcvd: " + modifiedMessage.decode())
         print("PONG {} RTT: {}ms".format(str(i + 1), rttString))
-        avg_rtt += rtt
+        avg_rtt += sample_rtt
         count_rtt += 1
 
         # calculation for EstimatedRTT
-        estimated_rtt = (1 - a) * estimated_rtt + a * rtt
+        if count_rtt < 1:
+            estimated_rtt = sample_rtt
+        else:
+            estimated_rtt = (1 - a) * estimated_rtt + a * sample_rtt
 
         # calc for deviation Rtt
-        dev_rtt = (1 - b) * dev_rtt + b * abs(rtt - estimated_rtt)
+        dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
 
         # check for min and max value
-        if rtt < min_rtt:
-            min_rtt = rtt
-        elif rtt > max_rtt:
-            max_rtt = rtt
+        if sample_rtt < min_rtt:
+            min_rtt = sample_rtt
+        elif sample_rtt > max_rtt:
+            max_rtt = sample_rtt
 
     except TimeoutError as e:
         print("\nMesg sent: " + message)
@@ -58,14 +62,12 @@ b = 0.25
 packet_loss = packet_loss / 10 * 100
 
 timeout = estimated_rtt + 4 * dev_rtt
-# estimated_rtt = (1 - a)*
-# dev_rtt =
 
 print('\nMin RTT:         {} ms'.format(min_rtt))
 print('Max RTT:         {} ms'.format(max_rtt))
 print('Avg RTT:         {} ms'.format(avg_rtt))
 print('Packet Loss:     {} '.format(packet_loss))
-# print('Estimated RTT:   {} ms'.format())
-# print('Dev RTT:         {}'.format())
-# print('Timeout Interval:{}'.format())
+print('Estimated RTT:   {} ms'.format(estimated_rtt))
+print('Dev RTT:         {}'.format(dev_rtt))
+print('Timeout Interval:{}'.format(timeout))
 clientSocket.close()
