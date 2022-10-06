@@ -41,6 +41,8 @@ for i in range(10):
         print("Ping {}: sample_rtt = {:.3f} ms, estimated_rtt = {:.3f} ms, dev_rtt = {:.3f} ms".format(
               i, sample_rtt, estimated_rtt, dev_rtt))
         count_rtt += 1
+
+        # calc timeout for next transmission
         timeout = estimated_rtt + 4 * dev_rtt
         # check for min and max value
         if sample_rtt < min_rtt:
