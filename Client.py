@@ -50,8 +50,7 @@ for i in range(10):
 
         # calc timeout for next transmission
         timeout = estimated_rtt + 4 * dev_rtt
-        print("Estimated: {}".format(estimated_rtt))
-        print('Dev_rtt: {}'.format(dev_rtt))
+
     # catch timeout and record that a packet was lost
     except TimeoutError as e:
         print("Ping " + str(i + 1) + ": Request Timed out")
