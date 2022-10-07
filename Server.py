@@ -7,7 +7,7 @@ from socket import socket, AF_INET, SOCK_DGRAM
 # Notice the use of SOCK_DGRAM for UDP packets
 serverSocket = socket(AF_INET, SOCK_DGRAM)
 # Assign IP address and port number to socket
-serverSocket.bind(('master2', 12000))
+serverSocket.bind(('10.0.0.1', 12000)) # 10.0.0.1
 print("Waiting for Client....")
 i = 1
 while True:

@@ -1,13 +1,14 @@
 from socket import *
+import socket as s
 import time
 
-serverName = 'master2'
+serverName = '10.0.0.1' # h2 ip # 10.0.0.1
 serverPort = 12000
-clientSocket = socket(AF_INET, SOCK_DGRAM)
+clientSocket = s.socket(s.AF_INET, s.SOCK_DGRAM)
 timeout = 1.0
-min_rtt = 1
-max_rtt = 0
-avg_rtt = 0
+min_rtt = 1.0
+max_rtt = -1.0
+avg_rtt = 0.0
 count_rtt = 0
 packet_loss = 0.0
 a = .125
@@ -29,27 +30,28 @@ for i in range(10):
         rttString = str(sample_rtt)
         avg_rtt += sample_rtt
 
-        # calculation for EstimatedRTT
+        # calculation for EstimatedRTT and Deviation
         if count_rtt < 1:
             estimated_rtt = sample_rtt
+            dev_rtt = sample_rtt/2
         else:
             estimated_rtt = (1 - a) * estimated_rtt + a * sample_rtt
+            dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
 
-        # calc for deviation Rtt
-        dev_rtt = (1 - b) * dev_rtt + b * abs(sample_rtt - estimated_rtt)
+        # find min and max
+        if sample_rtt < min_rtt:
+            min_rtt = sample_rtt
+        if sample_rtt > max_rtt:
+            max_rtt = sample_rtt
 
         print("Ping {}: sample_rtt = {:.3f} ms, estimated_rtt = {:.3f} ms, dev_rtt = {:.3f} ms".format(
-              i, sample_rtt, estimated_rtt, dev_rtt))
+              i+1, sample_rtt, estimated_rtt, dev_rtt))
         count_rtt += 1
 
         # calc timeout for next transmission
         timeout = estimated_rtt + 4 * dev_rtt
-        # check for min and max value
-        if sample_rtt < min_rtt:
-            min_rtt = sample_rtt
-        elif sample_rtt > max_rtt:
-            max_rtt = sample_rtt
-
+        print("Estimated: {}".format(estimated_rtt))
+        print('Dev_rtt: {}'.format(dev_rtt))
     # catch timeout and record that a packet was lost
     except TimeoutError as e:
         print("Ping " + str(i + 1) + ": Request Timed out")
