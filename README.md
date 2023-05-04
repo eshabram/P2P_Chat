@@ -1,10 +1,7 @@
 # CST311 - Project 2
 
-Change hostname in both server and client to
-desired localhost name or IP
-
-These files are not setup to run in pycharm.
-To run files in terminal(linux), open the terminal in
-the same directory as the files (one for each file)
-and type:
-python3 <yourfile.py>
+This is a simple p2p chat program that uses threading to implement both
+client and server programs on the same file. There are some cool little
+additional feature such as colored prompts, and message confirmations.
+Later I will likely add a TCP version, but as of now, all scripts use 
+UDP. There are some basic client and server scripts as well. Have fun!
