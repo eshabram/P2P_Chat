@@ -1,4 +1,4 @@
-# CST311 - Project 2
+# P2P Chat
 
 This is a simple p2p chat program that uses threading to implement both
 client and server programs on the same file. There are some cool little
